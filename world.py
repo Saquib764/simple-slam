@@ -15,6 +15,7 @@ class World:
 		self.width = width
 		self.height = height
 		self.animation_frequency = animation_frequency
+		self.start = None
 
 		self.agents = []
 		self.landmarks = []
@@ -49,8 +50,10 @@ class World:
 			a.plot()
 
 
-		plt.axis([0, self.width, 0, self.height])
+		plt.axis([0, self.width + 300, 0, self.height])
 		plt.grid(True)
+
+		plt.legend(loc='upper right')
 		plt.pause(1./self.animation_frequency)
 
 	def load(self, name):
@@ -73,7 +76,8 @@ class World:
 
 			return data
 
-	def create_control(self, motion_model, agent):
+	def create_control(self, motion_model, dt):
+		v = 5
 		# remove first
 		path = self.track["path"][1:, 0:]
 
@@ -82,33 +86,36 @@ class World:
 		# path = np.append(path, path[1:5], axis=0)
 
 		control = []
-		x, y, th = path[0][0], path[0][1], 0
+		x, y = path[0][0], path[0][1]
+
+		self.start = [x, y, 0, 0, v]
+
+		x = self.start
 		for i in range(1, len(path)):
 			# if i > 2:
 			# 	break
-			phi = 0
+			w = 0
 			c = 0
-			while sqrt((path[i][1] - y)**2 + (path[i][0] - x)**2) > 5 or fabs(phi) < pi/2:
+			while sqrt((path[i][1] - x[1])**2 + (path[i][0] - x[0])**2) > 5 or fabs(w) < pi/2:
 				# if i == 18 and c > 20:
 				# 	break
 				c+=1
-				phi = atan2(path[i][1] - y, path[i][0] - x) - th
+				w = atan2(path[i][1] - x[1], path[i][0] - x[0]) - x[2]
 
-				if (phi < -pi ):
-					phi = 2*pi + phi
-				# phi = phi % (2*pi)
+				if (w < -pi ):
+					w = 2*pi + w
+				# w = w % (2*pi)
 
-				phi = phi*rand(0.0)
+				w = w*rand(0.0)
 
-				phi = min(pi/2, max(-pi/2, phi))
+				w = min(pi/2, max(-pi/2, w))
 				# if i==18:
-				# 	print phi, atan2(path[i][1] - y, path[i][0] - x), th, x, y, path[i]
+				# 	print w, atan2(path[i][1] - y, path[i][0] - x), th, x, y, path[i]
 
-				x, y, th = motion_model(agent.dt, x, y, th, agent.v, phi)
-				control.append(phi)
+				u = [w, v]
+				x = motion_model(dt, x, u)
+				control.append(u)
 
-
-		print len(control)
 		return control
 		
 

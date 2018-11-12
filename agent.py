@@ -7,16 +7,20 @@ def dist(a, b):
 	return sqrt( (a[0]-b[0])**2 + (a[1]-b[1])**2 )
 
 def rand(thres):
-	return (0 + thres*2*(np.random.rand() - 0.5))
+	return thres*np.random.randn()
+
+def noise(cov):
+	return cov*np.random.randn(len(cov))
 
 class Agent():
 	"""docstring for Agent"""
-	def __init__(self, dt, color="red", state = (0,0,0), name="name"):
+	def __init__(self, dt, state, color="red", name="name"):
 		# pos => x, y, theta
 		self.name = name
 		self.color = color
-		self.ground_state = state
+		self.state = state
 		self.v = 5
+		self.C = None
 		self.dt = dt
 		self.world = None
 
@@ -27,11 +31,15 @@ class Agent():
 		# land mark => dist, theta
 		self.observed_landmark = []
 
-		self.history = np.array([[state[0], state[1]]])
+		self.history = np.array([state])
+
+		self.sensor_covariance = None
+
+		self.calculated = {}
 
 	def plot(self):
 		l = 5.
-		x, y, th = self.ground_state
+		x, y, th = self.state[0], self.state[1], self.state[2]
 		# plt.plot([x], [y], "ro", markersize=8)
 
 		t = mpl.markers.MarkerStyle(marker=">")
@@ -45,24 +53,29 @@ class Agent():
 		plt.plot(self.history[0:, 0], self.history[0:, 1], color=self.color, label=self.name)
 		
 	def set(self, state):
-		self.ground_state = state
-		self.history = np.append(self.history, [[state[0], state[1]]], axis=0)
+		self.state = state
+		self.history = np.append(self.history, [state], axis=0)
 		# self.history.append([state[0], state[1]])
 
-	def get_observation(self):
+	def get_observation2(self):
 		# simulate wheel encoder
 		self.odometry = self.v + rand(0.8)
 		self.u = self.yaw + rand(10*pi/180)
 		return self.odometry, self.u
+
+	def get_observation(self):
+		# simulate wheel encoder and imu
+		y = np.matmul(self.C, self.state) + noise(self.sensor_covariance)
+		return y
 
 
 	def get_landmark(self):
 		# simulates LidaR
 		self.observed_landmark = []
 		for l in self.world.landmarks:
-			d = dist(self.ground_state, l)
+			d = dist(self.state, l)
 			if d <= 30:
-				angle = atan2(l[1] - self.ground_state[1], l[0] - self.ground_state[0]) - self.ground_state[2]
+				angle = atan2(l[1] - self.state[1], l[0] - self.state[0]) - self.state[2]
 
 				# induce noise
 				d = d + rand(0.2)
