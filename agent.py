@@ -1,5 +1,5 @@
 import numpy as np
-from math import cos, sin, tan, pi, sqrt, atan2
+from math import cos, sin, tan, pi, sqrt, atan2, fabs
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
@@ -74,8 +74,10 @@ class Agent():
 		self.observed_landmark = []
 		for l in self.world.landmarks:
 			d = dist(self.state, l)
-			if d <= 30:
+			if d <= 20:
 				angle = atan2(l[1] - self.state[1], l[0] - self.state[0]) - self.state[2]
+				if(fabs(angle) > 150*pi/360):
+					continue
 
 				# induce noise
 				d = d + rand(0.2)
@@ -83,6 +85,9 @@ class Agent():
 
 				# errored, actaul x-y
 				self.observed_landmark.append([(d, angle), l])
+
+		print self.observed_landmark
+		print " "
 
 		return self.observed_landmark
 

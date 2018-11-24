@@ -9,7 +9,7 @@ from math import cos, sin, tan, pi, atan2, sqrt
 from world import World
 
 
-import particle as P
+import fastSlam2
 
 def motion_model(dt, x, u):
 
@@ -57,12 +57,13 @@ car.sensor_covariance = np.array([10*pi/180, 0.8])
 
 ghost_particle = W.create_new_agent(color="red", state=W.start, name="Particle")
 
-P.px[:] = W.start
+# P.px[:] = W.start
+fastSlam2.init(W.start)
 Iterations = len(control_array)
 for i in range(Iterations):
 
-	# if i > 3:
-	# 	break
+	if i > 3:
+		break
 
 	control = control_array[i]
 
@@ -82,7 +83,7 @@ for i in range(Iterations):
 
 	# Particle filter localization
 	u = y
-	xn = P.pf(W.dt, u, landmarks, motion_model, car.sensor_covariance)
+	xn = fastSlam2.fastSlam2(W.dt, u, landmarks, motion_model, car.sensor_covariance)
 	ghost_particle.set(xn)
 
 

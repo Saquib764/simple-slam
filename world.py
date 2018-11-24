@@ -34,6 +34,7 @@ class World:
 
 
 	def plot(self):
+		plt.pause(1./self.animation_frequency)
 		plt.clf()
 
 		# plot border
@@ -42,7 +43,7 @@ class World:
 		#plot landmarks
 
 		for l in self.landmarks:
-			x, y, color = l
+			x, y, color, RFID = l
 			plt.plot([x], [y], color)
 
 		# Plot ground truth pos
@@ -50,11 +51,10 @@ class World:
 			a.plot()
 
 
-		plt.axis([0, self.width + 300, 0, self.height])
+		plt.axis([0, self.width + 50, 0, self.height])
 		plt.grid(True)
 
 		plt.legend(loc='upper right')
-		plt.pause(1./self.animation_frequency)
 
 	def load(self, name):
 		color = {
@@ -65,15 +65,19 @@ class World:
 		with open(name, 'r') as handle:
 			data = pickle.load(handle)
 
+			RFID = 0
+
 			self.track = data
 
 			for d in data["left"]:
-				self.add_landmark((d[0], d[1], color["left"]))
+				self.add_landmark((d[0], d[1], color["left"], RFID))
+				RFID += 1
 			for d in data["right"]:
-				self.add_landmark((d[0], d[1], color["right"]))
-			for d in data["path"]:
-				self.add_landmark((d[0], d[1], color["path"]))
-
+				self.add_landmark((d[0], d[1], color["right"], RFID))
+				RFID += 1
+			# for d in data["path"]:
+			# 	self.add_landmark((d[0], d[1], color["path"]))
+			
 			return data
 
 	def create_control(self, motion_model, dt):

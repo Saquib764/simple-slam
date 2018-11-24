@@ -7,13 +7,16 @@ return 0
 
 fig, ax = plt.subplots()
 
-width = 400
-height = 400
+width = 100
+height = 100
 ax.plot([0, width, width, 0, 0], [0, 0, height, height, 0])
 
-inp = "path"
+inp = "left"
 
-plot = ["left", "right","path"]
+plot = []
+# plot = ["left"]
+# plot = ["left", "right"]
+# plot = ["left", "right","path"]
 
 data = None
 data = {
@@ -22,8 +25,8 @@ data = {
 	"path": np.array([[0,0]])
 }
 
-with open('track1.pickle', 'r') as handle:
-	data = pickle.load(handle)
+# with open('track2.pkl', 'r') as handle:
+# 	data = pickle.load(handle)
 
 color = {
 	"left": 'bs',
@@ -50,7 +53,7 @@ plt.show()
 
 print data
 # Save
-# fig.savefig("track1.png")
-# with open('track1.pickle', 'wb') as handle:
-# 	pickle.dump(data, handle)
+fig.savefig("track1.png")
+with open('track2.pkl', 'wb') as handle:
+	pickle.dump(data, handle)
 

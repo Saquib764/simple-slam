@@ -1,6 +1,9 @@
 
 import numpy as np
 
+
+import sys
+
 import math
 from math import cos, sin, tan, pi, atan2, sqrt
 
@@ -13,9 +16,13 @@ def gauss_likelihood(x, sigma):
 def noise(cov):
 	return cov*np.random.randn(len(cov))
 
-N = 100
+N = 10
 px = np.zeros((N, 5))
 pw = np.zeros(N) + 1./N
+
+
+def pi_2_pi(angle):
+    return (angle + math.pi) % (2 * math.pi) - math.pi
 
 def resampling():
 	"""
@@ -52,7 +59,10 @@ def resampling():
 
 
 def pf(dt, u, landmarks, motion_model, cov):
+	# [Lidar_sensor, real]
 	global px, pw, N
+
+	# print len(landmarks)
 
 	for i in range(N):
 		p = pw[i]
@@ -61,22 +71,30 @@ def pf(dt, u, landmarks, motion_model, cov):
 		ur = u + noise(cov)
 
 		xn = motion_model(dt, x, ur)
+		xn[2] = pi_2_pi(xn[2])
 
 		for l in landmarks:
 			reading = l[0]
 			dx, dy = l[1][0]-xn[0], l[1][1]-xn[1]
+
 			dangle = atan2(dy, dx) - xn[2] - reading[1]
+			# print 50*dangle/180
+
 			d = sqrt(dy**2 + dx**2) - reading[0]
 
 			p = p*gauss_likelihood(d, 0.1)*gauss_likelihood(dangle, (50*pi/180))
+			# p = p*gauss_likelihood(d, 0.1)
 
 		px[i] = xn
 		pw[i] = p
 
 
+
 	if pw.sum() != 0.:
 		pw = pw / pw.sum()
 	else:
+		# print "Zero"
+		sys.exit()
 		pw = pw + 1./N
 
 	xEst = np.matmul(pw, px)

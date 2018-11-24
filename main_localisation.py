@@ -44,8 +44,8 @@ def motion_model(dt, x, u):
 	return xn
 
 
-W = World(400, 400)
-track = W.load("track1.pkl")
+W = World(100, 100)
+track = W.load("track2.pkl")
 
 control_array = W.create_control(motion_model, W.dt)
 
@@ -62,8 +62,8 @@ P.px[:] = W.start
 Iterations = len(control_array)
 for i in range(Iterations):
 
-	# if i > 3:
-	# 	break
+	if i > 3:
+		break
 
 	control = control_array[i]
 
@@ -95,6 +95,8 @@ for i in range(Iterations):
 
 	if(i%W.frequency == 0):
 		W.plot()
+		for particle in P.px:
+			plt.scatter((particle[0]), (particle[1]), s= 10, color='blue')
 
 
 
