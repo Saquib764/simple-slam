@@ -94,7 +94,7 @@ def pf(dt, u, landmarks, motion_model, cov):
 		pw = pw / pw.sum()
 	else:
 		# print "Zero"
-		sys.exit()
+		# sys.exit()
 		pw = pw + 1./N
 
 	xEst = np.matmul(pw, px)

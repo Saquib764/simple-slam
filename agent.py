@@ -51,6 +51,10 @@ class Agent():
 
 		# print self.history
 		plt.plot(self.history[0:, 0], self.history[0:, 1], color=self.color, label=self.name)
+
+		for l in self.observed_landmark:
+			plt.plot([x, l[1][0]], [y, l[1][1]], color="black")
+
 		
 	def set(self, state):
 		self.state = state
@@ -86,8 +90,7 @@ class Agent():
 				# errored, actaul x-y
 				self.observed_landmark.append([(d, angle), l])
 
-		print self.observed_landmark
-		print " "
+		# print self.observed_landmark
 
 		return self.observed_landmark
 

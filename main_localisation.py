@@ -62,8 +62,8 @@ P.px[:] = W.start
 Iterations = len(control_array)
 for i in range(Iterations):
 
-	if i > 3:
-		break
+	# if i > 3:
+	# 	break
 
 	control = control_array[i]
 
